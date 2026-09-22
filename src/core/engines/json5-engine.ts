@@ -6,10 +6,11 @@ function sortKeysDeep(value: unknown): unknown {
 		return value.map(sortKeysDeep);
 	}
 	if (value !== null && typeof value === 'object') {
+		const record = value as Record<string, unknown>;
 		const sortedObj: Record<string, unknown> = {};
-		const keys = Object.keys(value as Record<string, unknown>).sort();
+		const keys = Object.keys(value).sort();
 		for (const key of keys) {
-			sortedObj[key] = sortKeysDeep((value as Record<string, unknown>)[key]);
+			sortedObj[key] = sortKeysDeep(record[key]);
 		}
 		return sortedObj;
 	}
@@ -48,8 +49,8 @@ export class Json5Engine implements IJsonEngine {
 
 	format(input: string, options: FormatOptions): EngineResult {
 		try {
-			const parsed = JSON5.parse(input);
-			const valueToFormat = options.sortKeys ? sortKeysDeep(parsed) : parsed;
+			const parsed: unknown = JSON5.parse(input);
+			const valueToFormat: unknown = options.sortKeys ? sortKeysDeep(parsed) : parsed;
 			const indent = options.useTabs ? '\t' : options.indentSize;
 			const formatted = JSON5.stringify(valueToFormat, null, indent);
 
@@ -67,7 +68,7 @@ export class Json5Engine implements IJsonEngine {
 
 	minify(input: string): EngineResult {
 		try {
-			const parsed = JSON5.parse(input);
+			const parsed: unknown = JSON5.parse(input);
 			const minified = JSON5.stringify(parsed);
 
 			return {

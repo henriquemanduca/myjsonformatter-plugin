@@ -3,6 +3,7 @@ import {
 	applyEdits,
 	parse,
 	ParseError,
+	ParseErrorCode,
 	printParseErrorCode,
 	stripComments,
 } from 'jsonc-parser';
@@ -41,15 +42,12 @@ const ERROR_CODE_DESCRIPTIONS: Record<number, string> = {
 	16: 'Invalid character',
 };
 
-function formatParseErrorCode(code: number): string {
-	if (ERROR_CODE_DESCRIPTIONS[code]) {
-		return ERROR_CODE_DESCRIPTIONS[code];
+function formatParseErrorCode(code: ParseErrorCode): string {
+	const desc = ERROR_CODE_DESCRIPTIONS[code];
+	if (desc !== undefined) {
+		return desc;
 	}
-	try {
-		return printParseErrorCode(code as any);
-	} catch {
-		return 'Syntax error';
-	}
+	return printParseErrorCode(code);
 }
 
 function sortKeysDeep(value: unknown): unknown {
@@ -57,10 +55,11 @@ function sortKeysDeep(value: unknown): unknown {
 		return value.map(sortKeysDeep);
 	}
 	if (value !== null && typeof value === 'object') {
+		const record = value as Record<string, unknown>;
 		const sortedObj: Record<string, unknown> = {};
-		const keys = Object.keys(value as Record<string, unknown>).sort();
+		const keys = Object.keys(value).sort();
 		for (const key of keys) {
-			sortedObj[key] = sortKeysDeep((value as Record<string, unknown>)[key]);
+			sortedObj[key] = sortKeysDeep(record[key]);
 		}
 		return sortedObj;
 	}
@@ -73,7 +72,7 @@ export class JsoncEngine implements IJsonEngine {
 
 	private validate(input: string): { valid: true; parsed: unknown } | { valid: false; error: EngineError } {
 		const errors: ParseError[] = [];
-		const parsed = parse(input, errors, { allowTrailingComma: true });
+		const parsed: unknown = parse(input, errors, { allowTrailingComma: true });
 
 		if (errors.length > 0) {
 			const firstErr = errors[0]!;
@@ -143,7 +142,7 @@ export class JsoncEngine implements IJsonEngine {
 		try {
 			// Strips comments and serializes compact JSON representation
 			const stripped = stripComments(input);
-			const parsed = JSON.parse(stripped);
+			const parsed: unknown = JSON.parse(stripped);
 			return {
 				success: true,
 				data: JSON.stringify(parsed),

@@ -44,7 +44,9 @@ export default class JsonToolkitPlugin extends Plugin implements IPluginWithSett
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const loadedData: unknown = await this.loadData();
+		const savedSettings = (typeof loadedData === 'object' && loadedData !== null ? loadedData : {}) as Partial<PluginSettings>;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, savedSettings);
 	}
 
 	async saveSettings(): Promise<void> {
