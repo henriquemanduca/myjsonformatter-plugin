@@ -41,6 +41,11 @@ jobs:
                   echo "Manifest version: $VERSION"
                   echo "Plugin ID: $PLUGIN_ID"
                   
+                  if [[ "$TAG" == v* ]]; then
+                    echo "::error::Tag cannot start with 'v' ($TAG). Obsidian releases must use semantic versioning without 'v' prefix (e.g. $VERSION)."
+                    exit 1
+                  fi
+
                   if [ "$TAG" != "$VERSION" ]; then
                     echo "::error::Tag ($TAG) does not match manifest.json version ($VERSION)"
                     exit 1

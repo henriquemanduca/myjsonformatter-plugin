@@ -1,10 +1,13 @@
 PLUGIN_ID := myjsonformatter
 OBSIDIAN_VAULTS := /home/henrique/projetos/pessoal/note-brain
 
-.PHONY: major patch build deploy
+.PHONY: major minor patch build deploy
 
 patch:
 	npm version patch
+
+minor:
+	npm version minor
 
 major:
 	npm version major
