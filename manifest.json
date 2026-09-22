@@ -1,7 +1,7 @@
 {
 	"id": "myjsonformatter",
 	"name": "JSON Toolkit",
-	"version": "0.0.2",
+	"version": "0.1.0",
 	"minAppVersion": "1.12.7",
 	"description": "Format, minify, and manipulate JSON, JSONC, and JSON5 payloads with comments and flexible syntax support.",
 	"author": "Henrique Manduca",
